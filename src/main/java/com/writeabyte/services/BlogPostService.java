@@ -1,64 +1,114 @@
 package com.writeabyte.services;
 
 import com.writeabyte.entities.BlogPost;
-import com.writeabyte.entities.Comment;
-import com.writeabyte.entities.Like;
 import com.writeabyte.entities.User;
 import com.writeabyte.exceptions.BlogPostNotFoundException;
+import com.writeabyte.models.response.BlogPostResponse;
+import com.writeabyte.models.response.BlogPosts;
+import com.writeabyte.models.response.CommentResponse;
 import com.writeabyte.repository.BlogPostRepository;
 import com.writeabyte.repository.UserRepository;
-
-import java.util.List;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class BlogPostService {
-    @Autowired
-    private BlogPostRepository blogPostRepository;
-    
-    @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
-    private LikeService likeService;
+	@Autowired
+	private BlogPostRepository blogPostRepository;
 
-    @Autowired
-    private CommentService commentService;
-    
+	@Autowired
+	private UserRepository userRepository;
+
+	@Autowired
+	private LikeService likeService;
+
+	@Autowired
+	private CommentService commentService;
+
+	private static final Logger logger = LoggerFactory.getLogger(BlogPostService.class);
+
+
     public List<BlogPost> getBlogPostsByUserId(Long userId) {
-        return blogPostRepository.findByUserId(userId);
-    }
+		return blogPostRepository.findByUserId(userId);
+	}
 
-    public BlogPost createBlogPost(BlogPost blogPost) throws Exception {
-    	 User user = userRepository.findById(blogPost.getUser().getId()).orElse(null);
-         if (user == null) {
-             throw new Exception("User not found with ID: " + blogPost.getUser().getId());
-         }
-        return blogPostRepository.save(blogPost);
-    }
-    
-    public void deleteBlogPost(Long blogPostId) {
-        if (!blogPostRepository.existsById(blogPostId)) {
-            throw new BlogPostNotFoundException("Blog post not found with ID: " + blogPostId);
-        }
-        blogPostRepository.deleteById(blogPostId);
-    }
-    
-    public List<BlogPost> getAllPostsWithLikesAndComments() {
-        List<BlogPost> posts = blogPostRepository.findAll();
+	public BlogPost createBlogPost(BlogPost blogPost) throws Exception {
+		User user = userRepository.findById(blogPost.getUser().getId()).orElse(null);
+		if (user == null) {
+			throw new Exception("User not found with ID: " + blogPost.getUser().getId());
+		}
+		return blogPostRepository.save(blogPost);
+	}
 
-        for (BlogPost post : posts) {
-            List<Like> likes = likeService.getLikesByBlogPostId(post.getId());
-            post.set(likes);
+	public void deleteBlogPost(Long blogPostId) {
+		if (!blogPostRepository.existsById(blogPostId)) {
+			throw new BlogPostNotFoundException("Blog post not found with ID: " + blogPostId);
+		}
+		blogPostRepository.deleteById(blogPostId);
+	}
 
-            List<Comment> comments = commentService.getCommentsByBlogPostId(post.getId());
-            post.setComments(comments);
-        }
+	public BlogPostResponse getAllPostsWithLikesAndComments() {
+		BlogPostResponse blogPostResponse = new BlogPostResponse();
+		try {
+			List<BlogPost> posts = blogPostRepository.findAll();
+			List<BlogPosts> blogPosts = new ArrayList<BlogPosts>();
+			blogPostResponse.setStatus(true);
+			for (BlogPost post : posts) {
+				BlogPosts blogPost = new BlogPosts();
+				blogPost.setLikes(likeService.getLikesByBlogPostId(post.getId()).size());
+				blogPost.setId(post.getId());
+				blogPost.setUserId(post.getUser().getId());
+				blogPost.setContent(post.getContent());
+				blogPost.setTitle(post.getTitle());
+				List<CommentResponse> comments = commentService.getCommentsByBlogPostId(post.getId());
+				List<CommentResponse> blogComments = new ArrayList<>();
+				for (CommentResponse c : comments) {
+					c.setStatus(true);
+					blogComments.add(c);
+				}
+				blogPost.setComments(blogComments);
+				blogPosts.add(blogPost);
+			}
+			blogPostResponse.setBlogPosts(blogPosts);
+		} catch (Exception e) {
+			logger.error("Error in User Service", e);
+		}
 
-        return posts;
-    }
+		return blogPostResponse;
+	}
 
-    
+	public BlogPostResponse getCurrentUserAllPostsWithLikesAndComments(Long userId) {
+		BlogPostResponse blogPostResponse = new BlogPostResponse();
+		try {
+			List<BlogPost> posts = blogPostRepository.findByUserId(userId);
+			List<BlogPosts> blogPosts = new ArrayList<BlogPosts>();
+			blogPostResponse.setStatus(true);
+			for (BlogPost post : posts) {
+				BlogPosts blogPost = new BlogPosts();
+				blogPost.setLikes(likeService.getLikesByBlogPostId(post.getId()).size());
+				blogPost.setId(post.getId());
+				blogPost.setUserId(post.getUser().getId());
+				blogPost.setContent(post.getContent());
+				blogPost.setTitle(post.getTitle());
+				List<CommentResponse> comments = commentService.getCommentsByBlogPostId(post.getId());
+				List<CommentResponse> blogComments = new ArrayList<>();
+				for (CommentResponse c : comments) {
+					c.setStatus(true);
+					blogComments.add(c);
+				}
+				blogPost.setComments(blogComments);
+				blogPosts.add(blogPost);
+			}
+			blogPostResponse.setBlogPosts(blogPosts);
+		} catch (Exception e) {
+			logger.error("Error in User Service", e);
+		}
+
+		return blogPostResponse;
+	}
 }
