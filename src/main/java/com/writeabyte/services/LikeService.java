@@ -7,6 +7,7 @@ import com.writeabyte.repository.BlogPostRepository;
 import com.writeabyte.repository.LikeRepository;
 import com.writeabyte.repository.UserRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,10 @@ public class LikeService {
     
     @Autowired
     private BlogPostRepository blogPostRepository;
+    
+    public List<Like> getLikesByBlogPostId(Long blogPostId) {
+        return likeRepository.findByBlogPostId(blogPostId);
+    }
     
     public boolean hasUserLikedBlogPost(Long userId, Long blogPostId) {
         return likeRepository.existsByUserIdAndBlogPostId(userId, blogPostId);

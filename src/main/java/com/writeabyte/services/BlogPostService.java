@@ -1,6 +1,8 @@
 package com.writeabyte.services;
 
 import com.writeabyte.entities.BlogPost;
+import com.writeabyte.entities.Comment;
+import com.writeabyte.entities.Like;
 import com.writeabyte.entities.User;
 import com.writeabyte.exceptions.BlogPostNotFoundException;
 import com.writeabyte.repository.BlogPostRepository;
@@ -18,6 +20,12 @@ public class BlogPostService {
     
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private LikeService likeService;
+
+    @Autowired
+    private CommentService commentService;
     
     public List<BlogPost> getBlogPostsByUserId(Long userId) {
         return blogPostRepository.findByUserId(userId);
@@ -37,4 +45,20 @@ public class BlogPostService {
         }
         blogPostRepository.deleteById(blogPostId);
     }
+    
+    public List<BlogPost> getAllPostsWithLikesAndComments() {
+        List<BlogPost> posts = blogPostRepository.findAll();
+
+        for (BlogPost post : posts) {
+            List<Like> likes = likeService.getLikesByBlogPostId(post.getId());
+            post.set(likes);
+
+            List<Comment> comments = commentService.getCommentsByBlogPostId(post.getId());
+            post.setComments(comments);
+        }
+
+        return posts;
+    }
+
+    
 }
