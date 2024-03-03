@@ -2,6 +2,8 @@ package com.writeabyte.controllers;
 
 import java.util.List;
 
+import com.writeabyte.models.response.CommentResponse;
+import com.writeabyte.models.response.LikeResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import com.writeabyte.entities.BlogPost;
 import com.writeabyte.entities.Comment;
 import com.writeabyte.entities.Like;
 import com.writeabyte.exceptions.BlogPostNotFoundException;
+import com.writeabyte.models.response.BlogPostResponse;
 import com.writeabyte.services.BlogPostService;
 import com.writeabyte.services.CommentService;
 import com.writeabyte.services.LikeService;
@@ -59,15 +62,25 @@ public class BlogPostController {
 	}
 
 	@GetMapping("/{postId}/likes")
-	public ResponseEntity<List<Like>> getLikesByPostId(@PathVariable Long postId) {
-		List<Like> likes = likeService.getLikesByBlogPostId(postId);
+	public ResponseEntity<List<LikeResponse>> getLikesByPostId(@PathVariable Long postId) {
+		List<LikeResponse> likes = likeService.getLikesByBlogPostId(postId);
 		return ResponseEntity.ok(likes);
 	}
 
 	@GetMapping("/{postId}/comments")
-	public ResponseEntity<List<Comment>> getCommentsByPostId(@PathVariable Long postId) {
-		List<Comment> comments = commentService.getCommentsByBlogPostId(postId);
+	public ResponseEntity<List<CommentResponse>> getCommentsByPostId(@PathVariable Long postId) {
+		List<CommentResponse> comments = commentService.getCommentsByBlogPostId(postId);
 		return ResponseEntity.ok(comments);
+	}
+
+	@GetMapping("/all-posts")
+	public ResponseEntity<BlogPostResponse> getAllBlogs() {
+		return ResponseEntity.ok(blogPostService.getAllPostsWithLikesAndComments());
+	}
+
+	@PostMapping("/all-posts/{userId}")
+	public ResponseEntity<BlogPostResponse> getBlogsByUserId(@PathVariable Long userId) {
+		return ResponseEntity.ok(blogPostService.getCurrentUserAllPostsWithLikesAndComments(userId));
 	}
 
 }

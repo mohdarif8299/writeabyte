@@ -2,6 +2,7 @@ package com.writeabyte.controllers;
 
 import java.util.List;
 
+import com.writeabyte.models.response.LikeResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +24,8 @@ public class LikeController {
 	private LikeService likeService;
 
 	@GetMapping("/blog-post/{blogPostId}")
-    public ResponseEntity<List<Like>> getLikesByBlogPostId(@PathVariable Long blogPostId) {
-        List<Like> likes = likeService.getLikesByBlogPostId(blogPostId);
+    public ResponseEntity<List<LikeResponse>> getLikesByBlogPostId(@PathVariable Long blogPostId) {
+        List<LikeResponse> likes = likeService.getLikesByBlogPostId(blogPostId);
         return ResponseEntity.ok(likes);
     }
 	

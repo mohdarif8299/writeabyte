@@ -9,5 +9,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BlogPostRepository extends JpaRepository<BlogPost, Long> {
+	List<BlogPost> findAll();
+
 	List<BlogPost> findByUserId(Long userId);
 }

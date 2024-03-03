@@ -1,44 +1,55 @@
 package com.writeabyte.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="user_like")
+@Table(name = "user_like")
 public class Like {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @ManyToOne
-    private User user;
-    @ManyToOne
-    private BlogPost blogPost;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    public Long getId() {
-        return id;
-    }
+	@JsonIgnoreProperties({ "likes" })
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	private User user;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	@JsonIgnore
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "blog_post_id")
+	private BlogPost blogPost;
 
-    public com.writeabyte.entities.User getUser() {
-        return user;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setUser(com.writeabyte.entities.User user) {
-        this.user = user;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public BlogPost getBlogPost() {
-        return blogPost;
-    }
+	public com.writeabyte.entities.User getUser() {
+		return user;
+	}
 
-    public void setBlogPost(BlogPost blogPost) {
-        this.blogPost = blogPost;
-    }
+	public void setUser(com.writeabyte.entities.User user) {
+		this.user = user;
+	}
+
+	public BlogPost getBlogPost() {
+		return blogPost;
+	}
+
+	public void setBlogPost(BlogPost blogPost) {
+		this.blogPost = blogPost;
+	}
 }
