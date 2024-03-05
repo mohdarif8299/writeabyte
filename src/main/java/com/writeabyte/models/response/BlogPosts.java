@@ -6,7 +6,6 @@ public class BlogPosts {
 	private Long id;
 
 	private Long userId;
-	private Long blogPostId;
 	private String title;
 	private String content;
 	private String image;
@@ -59,14 +58,6 @@ public class BlogPosts {
 
 	public void setImage(String image) {
 		this.image = image;
-	}
-
-	public Long getBlogPostId() {
-		return blogPostId;
-	}
-
-	public void setBlogPostId(Long blogPostId) {
-		this.blogPostId = blogPostId;
 	}
 
 	public Long getUserId() {
