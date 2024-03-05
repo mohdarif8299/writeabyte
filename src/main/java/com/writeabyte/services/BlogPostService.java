@@ -37,12 +37,24 @@ public class BlogPostService {
 		return blogPostRepository.findByUserId(userId);
 	}
 
-	public BlogPost createBlogPost(BlogPost blogPost) throws Exception {
-		User user = userRepository.findById(blogPost.getUser().getId()).orElse(null);
-		if (user == null) {
-			throw new Exception("User not found with ID: " + blogPost.getUser().getId());
+	public BlogPosts createBlogPost(BlogPost blogPost) throws Exception {
+		BlogPosts blogPosts = new BlogPosts();
+		try {
+			User user = userRepository.findById(blogPost.getUser().getId()).orElse(null);
+			if (user == null) {
+				throw new Exception("User not found with ID: " + blogPost.getUser().getId());
+			}
+			BlogPost savedBlogPost = blogPostRepository.save(blogPost);
+			if (savedBlogPost !=null) {
+				blogPosts.setId(savedBlogPost.getId());
+				blogPosts.setContent(savedBlogPost.getContent());
+				blogPosts.setTitle(savedBlogPost.getTitle());
+				blogPosts.setUserId(savedBlogPost.getUser().getId());
+			}
+		} catch (Exception e){
+			logger.error("Error while creating blog post", e);
 		}
-		return blogPostRepository.save(blogPost);
+		return blogPosts;
 	}
 
 	public void deleteBlogPost(Long blogPostId) {
